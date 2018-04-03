@@ -1,0 +1,17 @@
+{
+    "name": "zhouwuxiang/plusapi",
+    "description": "Website Zcool Hellorf Plus API",
+    "type": "library",
+    "require": {
+        "php": ">=5.5.9",
+        "guzzlehttp/guzzle": "^6.2"
+    },
+    "license": "none",
+    "authors": [
+        {
+            "name": "zhouwuxiang",
+            "email": "zwx213@qq.com"
+        }
+    ],
+    "minimum-stability": "dev"
+}
