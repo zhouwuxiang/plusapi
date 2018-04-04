@@ -15,7 +15,7 @@
     ],
     "autoload": {
         "psr-4": { 
-            "Zhouwuxiang\\Plusapi": ""
+            "Zhouwuxiang\\Plusapi\\": ""
         }
     },
     "minimum-stability": "dev"
