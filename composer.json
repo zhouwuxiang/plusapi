@@ -13,5 +13,10 @@
             "email": "zwx213@qq.com"
         }
     ],
+    "autoload": {
+        "psr-4": { 
+            "Zhouwuxiang\\Plusapi": ""
+        }
+    },
     "minimum-stability": "dev"
 }
