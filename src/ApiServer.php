@@ -5,7 +5,7 @@ namespace Zhouwuxiang\Plusapi;
 use GuzzleHttp\Client;
 
 class ApiServer 
-{	
+{   
     /**
      * [$client_id description]
      * @var [type]
@@ -93,20 +93,26 @@ class ApiServer
      * [myPurchases 我的购买记录]
      * This is a cool function
      * @author zhouwuxiang
-     * @DateTime 2018-04-02
-     * @param    string     $begin_at    [description]
-     * @param    string     $end_at      [description]
-     * @param    integer    $is_download [description]
-     * @param    integer    $per_page    [description]
-     * @param    integer    $page        [description]
-     * @return   [type]                  [description]
+     * @DateTime 2018-04-10
+     * @param    string     $begin_at         [description]
+     * @param    string     $end_at           [description]
+     * @param    string     $begin_updated_at [description]
+     * @param    string     $end_updated_at   [description]
+     * @param    integer    $is_download      [description]
+     * @param    integer    $status           [description]
+     * @param    integer    $per_page         [description]
+     * @param    integer    $page             [description]
+     * @return   [type]                       [description]
      */
-    public function myPurchases($begin_at = '', $end_at = '' , $is_download = 1, $per_page = 10, $page = 1)
+    public function myPurchases($begin_at = '', $end_at = '', $begin_updated_at = '', $end_updated_at = '', $is_download = 0, $status = 1, $per_page = 10, $page = 1)
     {
         $data = [
             'begin_at' => $begin_at,
             'end_at' => $end_at,
+            'begin_updated_at' => $begin_updated_at,
+            'end_updated_at' => $end_updated_at,
             'is_download' => $is_download,
+            'status' => $status,
             'per_page' => $per_page,
             'page' => $page,
         ];
@@ -120,14 +126,16 @@ class ApiServer
      * [purchaseDownload 下载图片]
      * This is a cool function
      * @author zhouwuxiang
-     * @DateTime 2018-04-02
+     * @DateTime 2018-04-10
      * @param    [type]     $purchase_id [description]
+     * @param    string     $asset_type  [description]
      * @return   [type]                  [description]
      */
-    public function purchaseDownload($purchase_id)
+    public function purchaseDownload($purchase_id, $asset_type = '')
     {
         $data = [
            'purchase_id' => $purchase_id,
+           'asset_type' => $asset_type,
         ];
 
         $path = 'image/purchase-download';
@@ -136,14 +144,15 @@ class ApiServer
     }
 
     /**
-     * [purchaseDownload 下载授权书]
+     * [downloadWarrant 下载授权书]
      * This is a cool function
      * @author zhouwuxiang
-     * @DateTime 2018-04-02
+     * @DateTime 2018-04-10
      * @param    [type]     $purchase_id [description]
+     * @param    string     $slink       [description]
      * @return   [type]                  [description]
      */
-    public function downloadWarrant($purchase_id)
+    public function downloadWarrant($purchase_id, $slink = '')
     {
         $data = [
             'purchase_id' => $purchase_id,
@@ -151,7 +160,7 @@ class ApiServer
 
         $path = 'image/download-warrant';
 
-        return $this->request('get', $path, $data);
+        return $this->request('get', $path, $data, ['slink' => $slink]);
     }
 
     /**
@@ -191,18 +200,36 @@ class ApiServer
      * [request description]
      * This is a cool function
      * @author zhouwuxiang
-     * @DateTime 2018-04-02
-     * @param    [type]     $method [description]
-     * @param    [type]     $path   [description]
-     * @param    array      $data   [description]
-     * @return   [type]             [description]
+     * @DateTime 2018-04-10
+     * @param    [type]     $method   [description]
+     * @param    [type]     $path     [description]
+     * @param    array      $data     [description]
+     * @param    array      $ext_data [description]
+     * @return   [type]               [description]
      */
-    public function request($method, $path, $data=[])
+    public function request($method, $path, $data=[], $ext_data = [])
     {
-        $client = new Client();
+        try 
+        {
+            $client = new Client();
 
-        $response = $client->request($method, $this->url . $path, $this->mergeParams($data));
+            $data = $this->mergeParams($data);
 
-        return $response->getContent();
+            if($method == 'post')
+            {
+                $response = $client->request('POST', $this->url . $path, ['form_params' => $data]);
+            }
+            else
+            {
+                $response = $client->request('GET', $this->url . $path . '?' . http_build_query($data), $ext_data);
+            }
+
+            return json_decode($response->getBody()->getContents(), true);  
+        } 
+        catch (\Exception $e) 
+        {
+            return ['result'=>false, 'message' => $e->getMessage()];
+        }
+        
     }
 }
