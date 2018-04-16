@@ -197,6 +197,35 @@ class ApiServer
     }
 
     /**
+     * [postUrl description]
+     * This is a cool function
+     * @author zhouwuxiang
+     * @DateTime 2018-04-16
+     * @param    [type]     $path [description]
+     * @return   [type]           [description]
+     */
+    public function postUrl($path)
+    {
+        return $this->url . $path;
+    }
+
+    /**
+     * [getUrl description]
+     * This is a cool function
+     * @author zhouwuxiang
+     * @DateTime 2018-04-16
+     * @param    [type]     $path [description]
+     * @param    array      $data [description]
+     * @return   [type]           [description]
+     */
+    public function getUrl($path, $data=[])
+    {
+        $data = $this->mergeParams($data);
+
+        return $this->url . $path . '?' . http_build_query($data);
+    }
+
+    /**
      * [request description]
      * This is a cool function
      * @author zhouwuxiang
@@ -207,29 +236,35 @@ class ApiServer
      * @param    array      $ext_data [description]
      * @return   [type]               [description]
      */
-    public function request($method, $path, $data=[], $ext_data = [])
+    public function request($method, $path, $data=[], $ext_data = [], $cnt=1)
     {
         try 
         {
             $client = new Client();
 
-            $data = $this->mergeParams($data);
-
             if($method == 'post')
             {
-                $response = $client->request('POST', $this->url . $path, ['form_params' => $data]);
+                $data = $this->mergeParams($data);
+
+                $response = $client->request('POST', $this->postUrl($path), ['form_params' => $data]);
             }
             else
             {
-                $response = $client->request('GET', $this->url . $path . '?' . http_build_query($data), $ext_data);
+                $response = $client->request('GET', $this->getUrl($path, $data), $ext_data);
             }
 
             return json_decode($response->getBody()->getContents(), true);  
         } 
         catch (\Exception $e) 
         {
-            return ['result'=>false, 'message' => $e->getMessage()];
+            if($cnt == 3)
+            {
+                return ['result'=>false, 'message' => $e->getMessage()];    
+            }
+
+            $cnt ++;
+
+            return $this->request($method, $path, $data, $ext_data, $cnt);
         }
-        
     }
 }
